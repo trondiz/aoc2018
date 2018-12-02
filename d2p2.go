@@ -15,12 +15,12 @@ func check(e error) {
 
 func compare(a []string, b []string) bool {
 	count := 0
-	for i := 0; i < 25; i++ {
+	for i := 0; i < 26; i++ {
 		if a[i] == b[i] {
 			count++
 		}
 	}
-	if count == 24 {
+	if count == 25 {
 		return true
 	} else {
 		return false
