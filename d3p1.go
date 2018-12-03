@@ -3,7 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"log"
-	"strconv"
+	"regexp"
 	"strings"
 )
 
@@ -17,26 +17,27 @@ func main() {
 	b, err := ioutil.ReadFile("d3.data")
 	check(err)
 	foo := strings.Split(string(b), "\n")
-
+	foo = foo[:len(foo)-1]
+	claims := make([][]string, 0)
 	for _, f := range foo {
-		data := strings.Split(string(f), " ")
-		claims := make(map[string]map[string]string)
-
-		//		claims[data[0]] = make(map[string]int)
-		log.Println(data)
-		xy := strings.Split(string(data[2]), ",")
-		y := strings.Split(string(xy[1]), ":")
-		rx, err := strconv.Atoi(xy[0])
-		ry, err := strconv.Atoi(y[0])
-		claims[data[0]]["x"] = data[rx]
-		claims[data[0]]["y"] = data[ry]
-		sxy := strings.Split(string(data[3]), "x")
-		rsx, err := strconv.Atoi(sxy[0])
-		rsy, err := strconv.Atoi(sxy[1])
-		claims[data[0]]["sx"] = data[rsx]
-		claims[data[0]]["sy"] = data[rsy]
-		log.Println(claims)
-		check(err)
+		r := regexp.MustCompile(`(?P<Id>#\d+) @ (?P<x>\d+),(?P<y>\d+): (?P<sx>\d+)x(?P<sy>\d+)`)
+		res := r.FindStringSubmatch(f)
+		claims = append(claims, res)
 	}
 
+	for len(claims) > 0 {
+		var cur []string
+		cur, claims = claims[0], claims[1:]
+		collcounter := 0
+		for _, ba := range claims {
+			if compare(cur, ba) {
+				//fmt.Println("Collision:", cur, ba)
+				collcounter++
+				break
+			}
+		}
+		//os.Exit(0)
+	}
+
+	log.Println(collcounter)
 }
