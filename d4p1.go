@@ -14,14 +14,9 @@ func check(e error) {
 	}
 }
 
-func ClaimAtoi(vs []string) []int {
-	vsm := make([]int, len(vs))
-	for i, v := range vs {
-		var e error
-		vsm[i], e = strconv.Atoi(v)
-		check(e)
-	}
-	return vsm
+func MyAtoi(v string) int {
+	c, _ := strconv.Atoi(v)
+	return c
 }
 
 func main() {
@@ -45,41 +40,61 @@ func main() {
 	var shiftStart = regexp.MustCompile(`Guard`)
 	var guardsleep = regexp.MustCompile(`falls asleep`)
 	var guardwakes = regexp.MustCompile(`wakes up`)
-	curGuard := 0
-	for _, r := range records {
-		switch {
-		case shiftStart.MatchString(r[6]):
-			id := regexp.MustCompile(`Guard #(?P<Id>\d+) begins shift`)
-			res := id.FindStringSubmatch(r[6])
-			curGuard, err = strconv.Atoi(res[1])
-		case guardsleep.MatchString(r[6]):
-			min, err := strconv.Atoi(r[5])
-			check(err)
-			guards[curGuard][min]++
-		case guardwakes.MatchString(r[6]):
-			//noop
+	curGuardId := 0
+	curGuardSleeping := false
+	//1518-02-10
+	for m := 2; m <= 12; m++ {
+		for d := 1; d <= 31; d++ {
+			for h := 0; h <= 23; h++ {
+				for mi := 0; mi <= 59; mi++ {
+					// Find log record
+					for _, r := range records {
+						if MyAtoi(r[2]) == m && MyAtoi(r[3]) == d && MyAtoi(r[4]) == h && MyAtoi(r[5]) == mi {
+							switch {
+							case shiftStart.MatchString(r[6]):
+								id := regexp.MustCompile(`Guard #(?P<Id>\d+) begins shift`)
+								res := id.FindStringSubmatch(r[6])
+								curGuardId = MyAtoi(res[1])
+								curGuardSleeping = false
+							case guardsleep.MatchString(r[6]):
+								curGuardSleeping = true
+							case guardwakes.MatchString(r[6]):
+								curGuardSleeping = false
+							}
+							//log.Println(r, "time is now", m, d, h, mi)
+							break
+						}
+					}
+					if curGuardSleeping && h == 0 {
+						//log.Println(curGuardId, "is sleeping at", m, d, h, mi, curGuardSleeping)
+						guards[curGuardId][mi]++
+					}
+				}
+			}
 		}
 	}
 
-	log.Println(guards[419])
+	commonSleeperId := 0
+	commonSleeperMinute := 0
+	commonSleeperMins := 0
+	commonSleeperSum := 0
+	for gi, g := range guards {
+		sum := 0
+		for _, m := range g {
+			sum += m
+		}
+		if sum > commonSleeperSum {
+			commonSleeperId = gi
+			commonSleeperSum = sum
+		}
+	}
+	for bi, b := range guards[commonSleeperId] {
+		if b > commonSleeperMins {
+			commonSleeperMins = b
+			commonSleeperMinute = bi
+		}
+	}
 
-	//collcounter := 0
-	//for x := 0; x < 1000; x++ {
-	//	for y := 0; y < 1000; y++ {
-	//		claimcounter := 0
-	//		for _, claim := range claimsreal {
-	//			if x > claim[0] && x <= claim[0]+claim[2] && y > claim[1] && y <= claim[1]+claim[3] {
-	//				//log.Println("X:", x, "Y:", y, "Claim matches:", claim, "Pic:", claim[0], claim[1], claim[0]+claim[2], claim[1]+claim[3])
-	//				claimcounter++
-	//			}
-	//			if claimcounter == 2 {
-	//				//log.Println("Breaking off")
-	//				collcounter++
-	//				//log.Println(collcounter)
-	//				break
-	//			}
-	//		}
-	//	}
-	//}
-	//log.Println(collcounter)
+	log.Println(commonSleeperId, commonSleeperMinute, commonSleeperMins)
+	log.Println(commonSleeperId * commonSleeperMinute)
 }
