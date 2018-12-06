@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"math"
@@ -21,7 +22,7 @@ func MyAtoi(v string) int {
 
 func shortestId(coords [][]string, x int, y int) int {
 	id := 0
-	dup := 0
+	dup := 99
 	length := 999
 	for ci, c := range coords {
 		cx := MyAtoi(c[0])
@@ -33,13 +34,13 @@ func shortestId(coords [][]string, x int, y int) int {
 			if len == length {
 				dup = id
 			} else {
-				dup = 0
+				dup = 99
 			}
 			length = len
 			id = ci
 		}
 	}
-	if dup != 0 {
+	if dup != 99 {
 		return 99
 	} else {
 		return id
@@ -68,29 +69,38 @@ func main() {
 	}
 
 	inflist := make([]int, 0)
-	system := make([][]int, 500)
+	system := make([][]int, 1000)
 	for s := range system {
-		system[s] = make([]int, 500)
+		system[s] = make([]int, 1000)
 	}
 
 	// test and mark infinities
-	for x := 0; x < 500; x++ {
+	for x := 0; x < 1000; x++ {
 		y := 0
-		shortest := shortestId(coords, x, y)
+		shortest := shortestId(coords, y, x)
 		inflist = Add(shortest, inflist)
-		y = 500
-		shortest = shortestId(coords, x, y)
+		y = 1000
+		shortest = shortestId(coords, y, x)
+		inflist = Add(shortest, inflist)
+	}
+	for y := 0; y < 1000; y++ {
+		x := 0
+		shortest := shortestId(coords, y, x)
+		inflist = Add(shortest, inflist)
+		x = 1000
+		shortest = shortestId(coords, y, x)
 		inflist = Add(shortest, inflist)
 	}
 	sort.Ints(inflist)
 	log.Println(inflist)
 	counter := make([]int, 100)
-	for i := 0; i < 500; i++ {
-		for y := 0; y < 500; y++ {
-			system[i][y] = shortestId(coords, i, y)
-			counter[system[i][y]]++
+	for y := 0; y < 1000; y++ {
+		for i := 0; i < 1000; i++ {
+			system[y][i] = shortestId(coords, i, y)
+			counter[system[y][i]]++
 		}
 	}
+
 	for hi, h := range counter {
 		found := false
 		for _, g := range inflist {
@@ -103,5 +113,12 @@ func main() {
 		}
 	}
 	log.Println(counter)
+	log.Println(shortestId(coords, 5, 1))
+	for i := 0; i < 10; i++ {
+		for j := 0; j < 10; j++ {
+			fmt.Print(system[i][j], " ")
+		}
+		fmt.Println("")
+	}
 
 }
