@@ -31,7 +31,7 @@ func shortestId(coords [][]int, x int, y int) int {
 }
 
 func main() {
-	start := time.Now()
+
 	b, err := ioutil.ReadFile("d6.data")
 	check(err)
 
@@ -47,6 +47,7 @@ func main() {
 		}
 	}
 	counter := 0
+	start := time.Now()
 	for y := 49; y < 352; y++ {
 		for i := 49; i < 352; i++ {
 			counter = counter + shortestId(coords, i, y)
