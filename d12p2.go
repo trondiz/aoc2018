@@ -20,13 +20,6 @@ func MyAtoi(v string) int {
 	return c
 }
 
-type pot struct {
-	prev string
-	curr string
-	*left string
-	*right string
-}
-
 func main() {
 	b, err := ioutil.ReadFile("d12.data")
 	check(err)
