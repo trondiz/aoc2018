@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -13,13 +12,9 @@ func check(e error) {
 	}
 }
 
-func MyAtoi(v string) int {
-	c, _ := strconv.Atoi(v)
-	return c
-}
-func diff(a []int, b []int) bool {
+func diff(a []byte, b []byte) bool {
 	for ci, c := range a {
-		if b[ci] != c {
+		if (b[ci] ^ c) > 0 {
 			return true
 		}
 	}
@@ -29,8 +24,8 @@ func diff(a []int, b []int) bool {
 func main() {
 	t_input := time.Now()
 
-	input := []int{7, 0, 4, 3, 2, 1}
-	scoreboard := []int{3, 7}
+	input := []byte{7, 0, 4, 3, 2, 1}
+	scoreboard := []byte{3, 7}
 	e1pos := 0
 	e2pos := 1
 	for {
@@ -40,10 +35,14 @@ func main() {
 			e2r := nr % 10
 			scoreboard = append(scoreboard, e1r)
 			if len(scoreboard) > len(input) {
-				cmp := scoreboard[len(scoreboard)-len(input):]
-				diff := diff(cmp, input)
+				diff := false
+				for ini, in := range input {
+					if in != scoreboard[len(scoreboard)-len(input)+ini] {
+						diff = true
+						break
+					}
+				}
 				if !diff {
-					log.Println(cmp, input)
 					log.Println(len(scoreboard) - len(input))
 					input_t_elapsed := time.Since(t_input)
 					log.Println(input_t_elapsed)
@@ -54,15 +53,19 @@ func main() {
 		} else {
 			scoreboard = append(scoreboard, nr)
 		}
-		e1pos = (e1pos + 1 + scoreboard[e1pos]) % len(scoreboard)
-		e2pos = (e2pos + 1 + scoreboard[e2pos]) % len(scoreboard)
+		e1pos = (e1pos + 1 + int(scoreboard[e1pos])) % len(scoreboard)
+		e2pos = (e2pos + 1 + int(scoreboard[e2pos])) % len(scoreboard)
 		if len(scoreboard) > len(input) {
-			cmp := scoreboard[len(scoreboard)-len(input):]
-			diff := diff(cmp, input)
+			diff := false
+			for ini, in := range input {
+				if in != scoreboard[len(scoreboard)-len(input)+ini] {
+					diff = true
+					break
+				}
+			}
 			if !diff {
 				input_t_elapsed := time.Since(t_input)
 				log.Println(input_t_elapsed)
-				log.Println(cmp, input)
 				log.Println(len(scoreboard) - len(input))
 				os.Exit(0)
 			}
