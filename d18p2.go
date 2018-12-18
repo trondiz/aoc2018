@@ -30,7 +30,6 @@ func Counter(chrt [][]rune, x, y int, tp rune) int {
 			}
 			if chrt[yr][xr] == tp {
 				cntr++
-				//log.Println(string(chrt[yr][xr]), y, x, yr, xr)
 			}
 
 		}
@@ -38,13 +37,19 @@ func Counter(chrt [][]rune, x, y int, tp rune) int {
 	return cntr
 }
 
-func AddUnique(v int, a []int) []int {
+func AddUnique(v string, a []string) []string {
 	for _, b := range a {
 		if v == b {
 			return a
 		}
 	}
 	return append(a, v)
+}
+
+type change struct {
+	x int
+	y int
+	r rune
 }
 
 func main() {
@@ -55,72 +60,88 @@ func main() {
 	foo := strings.Split(string(b), "\n")
 	foo = foo[:len(foo)-1]
 	chart := make([][]rune, len(foo))
-	oldchart := make([][]rune, len(foo))
+	duplist := make([]string, 0)
+	realduplist := make([]string, 0)
+	changeLog := make([]change, 0)
 	for fi, f := range foo {
 		chart[fi] = []rune(f)
-		oldchart[fi] = []rune(f)
 	}
 	input_t_elapsed := time.Since(t_input)
 	log.Println("Input:", input_t_elapsed)
 	t_input = time.Now()
-	duplist := make([]int, 0)
+	duplen := 0
+
 	for j := 0; j < 1000000000; j++ {
-		for oi, o := range oldchart {
+		for oi, o := range chart {
 			for ooi, oo := range o {
 				switch oo {
 				case '.':
-					treecnt := Counter(oldchart, ooi-1, oi-1, '|')
+					treecnt := Counter(chart, ooi-1, oi-1, '|')
 					if treecnt >= 3 {
-						chart[oi][ooi] = '|'
+						changeLog = append(changeLog, change{x: ooi, y: oi, r: '|'})
 					}
 				case '|':
-					lmbcnt := Counter(oldchart, ooi-1, oi-1, '#')
+					lmbcnt := Counter(chart, ooi-1, oi-1, '#')
 					if lmbcnt >= 3 {
-						chart[oi][ooi] = '#'
+						changeLog = append(changeLog, change{x: ooi, y: oi, r: '#'})
 					}
 				case '#':
-					lmbcnt := Counter(oldchart, ooi-1, oi-1, '#')
-					treecnt := Counter(oldchart, ooi-1, oi-1, '|')
-					//log.Println(lmbcnt, treecnt, ooi, oi)
-					if lmbcnt < 1 || treecnt < 1 {
-						chart[oi][ooi] = '.'
+					lmbcnt := Counter(chart, ooi-1, oi-1, '#')
+					if lmbcnt < 1 {
+						changeLog = append(changeLog, change{x: ooi, y: oi, r: '.'})
+					} else {
+						treecnt := Counter(chart, ooi-1, oi-1, '|')
+						if treecnt < 1 {
+							changeLog = append(changeLog, change{x: ooi, y: oi, r: '.'})
+						}
 					}
-				}
-			}
-		}
-		for i, ii := range chart {
-			for l, ll := range ii {
-				oldchart[i][l] = ll
-			}
-			//log.Println(string(ii))
-		}
-		treecnt := 0
-		lmbcnt := 0
-		for _, c := range chart {
-			for _, a := range c {
-				switch a {
-				case '|':
-					treecnt++
-				case '#':
-					lmbcnt++
 				}
 			}
 		}
 
-		res := treecnt * lmbcnt
+		for _, i := range changeLog {
+			chart[i.y][i.x] = i.r
+		}
+		changeLog = changeLog[:0]
+
+		// Compare entire thing as a string
+		tmp := ""
+		for _, k := range chart {
+			tmp += string(k)
+		}
+		df := false
 		for _, d := range duplist {
-			if d == res {
-				if (1000000000-j-1)%(len(duplist)+1) == 0 {
-					log.Println("one billion!:", res)
-					os.Exit(0)
+			if d == tmp {
+				realduplist = AddUnique(tmp, realduplist)
+				if duplen < len(realduplist) {
+					duplen = len(realduplist)
+					df = true
 				}
 			}
 		}
-		// Lets wait a while before checking for duplicates
-		if j > 1000 {
-			duplist = AddUnique(res, duplist)
+
+		if !df && len(realduplist) > 1 {
+			if (1000000000-j-1)%len(realduplist) == 0 {
+				treecnt := 0
+				lmbcnt := 0
+				for _, c := range chart {
+					for _, a := range c {
+						switch a {
+						case '|':
+							treecnt++
+						case '#':
+							lmbcnt++
+						}
+					}
+				}
+				res := treecnt * lmbcnt
+				input_t_elapsed = time.Since(t_input)
+				log.Println("P2:", input_t_elapsed)
+				log.Println("Result:", res)
+				os.Exit(0)
+			}
 		}
 
+		duplist = AddUnique(tmp, duplist)
 	}
-
 }

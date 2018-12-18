@@ -97,6 +97,8 @@ func main() {
 			}
 		}
 	}
-	log.Println("Sol:", treecnt*lmbcnt)
+	input_t_elapsed = time.Since(t_input)
+	log.Println("P1:", input_t_elapsed)
+	log.Println("Solution:", treecnt*lmbcnt)
 
 }
