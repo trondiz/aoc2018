@@ -18,7 +18,6 @@ func Counter(chrt [][]rune, x, y int, tp rune) int {
 	cntr := 0
 	for yr := 0 + y; yr < 3+y; yr++ {
 		for xr := 0 + x; xr < 3+x; xr++ {
-
 			if yr < 0 || yr >= len(chrt) {
 				continue
 			}
@@ -31,15 +30,17 @@ func Counter(chrt [][]rune, x, y int, tp rune) int {
 			if chrt[yr][xr] == tp {
 				cntr++
 			}
-
+			if cntr == 3 {
+				return 3
+			}
 		}
 	}
 	return cntr
 }
 
 func AddUnique(v string, a []string) []string {
-	for _, b := range a {
-		if v == b {
+	for i := len(a) - 1; i >= 0; i-- {
+		if v == a[i] {
 			return a
 		}
 	}
@@ -105,14 +106,14 @@ func main() {
 		changeLog = changeLog[:0]
 
 		// Compare entire thing as a string
-		tmp := ""
+		var tmp strings.Builder
 		for _, k := range chart {
-			tmp += string(k)
+			tmp.WriteString(string(k))
 		}
 		df := false
 		for _, d := range duplist {
-			if d == tmp {
-				realduplist = AddUnique(tmp, realduplist)
+			if d == tmp.String() {
+				realduplist = AddUnique(tmp.String(), realduplist)
 				if duplen < len(realduplist) {
 					duplen = len(realduplist)
 					df = true
@@ -120,7 +121,7 @@ func main() {
 			}
 		}
 
-		if !df && len(realduplist) > 1 {
+		if !df && len(realduplist) > 0 {
 			if (1000000000-j-1)%len(realduplist) == 0 {
 				treecnt := 0
 				lmbcnt := 0
@@ -137,11 +138,12 @@ func main() {
 				res := treecnt * lmbcnt
 				input_t_elapsed = time.Since(t_input)
 				log.Println("P2:", input_t_elapsed)
+				log.Println("J", j)
 				log.Println("Result:", res)
 				os.Exit(0)
 			}
 		}
 
-		duplist = AddUnique(tmp, duplist)
+		duplist = AddUnique(tmp.String(), duplist)
 	}
 }
