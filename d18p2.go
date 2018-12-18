@@ -3,6 +3,7 @@ package main
 import (
 	"io/ioutil"
 	"log"
+	"os"
 	"strings"
 	"time"
 )
@@ -37,6 +38,15 @@ func Counter(chrt [][]rune, x, y int, tp rune) int {
 	return cntr
 }
 
+func AddUnique(v int, a []int) []int {
+	for _, b := range a {
+		if v == b {
+			return a
+		}
+	}
+	return append(a, v)
+}
+
 func main() {
 	t_input := time.Now()
 	b, err := ioutil.ReadFile("d18.data")
@@ -53,8 +63,8 @@ func main() {
 	input_t_elapsed := time.Since(t_input)
 	log.Println("Input:", input_t_elapsed)
 	t_input = time.Now()
-
-	for j := 0; j < 10; j++ {
+	duplist := make([]int, 0)
+	for j := 0; j < 1000000000; j++ {
 		for oi, o := range oldchart {
 			for ooi, oo := range o {
 				switch oo {
@@ -84,19 +94,33 @@ func main() {
 			}
 			//log.Println(string(ii))
 		}
-	}
-	treecnt := 0
-	lmbcnt := 0
-	for _, c := range chart {
-		for _, a := range c {
-			switch a {
-			case '|':
-				treecnt++
-			case '#':
-				lmbcnt++
+		treecnt := 0
+		lmbcnt := 0
+		for _, c := range chart {
+			for _, a := range c {
+				switch a {
+				case '|':
+					treecnt++
+				case '#':
+					lmbcnt++
+				}
 			}
 		}
+
+		res := treecnt * lmbcnt
+		for _, d := range duplist {
+			if d == res {
+				if (1000000000-j-1)%(len(duplist)+1) == 0 {
+					log.Println("one billion!:", res)
+					os.Exit(0)
+				}
+			}
+		}
+		// Lets wait a while before checking for duplicates
+		if j > 1000 {
+			duplist = AddUnique(res, duplist)
+		}
+
 	}
-	log.Println("Sol:", treecnt*lmbcnt)
 
 }
