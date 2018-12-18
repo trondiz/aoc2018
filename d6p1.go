@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"math"
@@ -92,7 +91,6 @@ func main() {
 		inflist = Add(shortest, inflist)
 	}
 	sort.Ints(inflist)
-	log.Println(inflist)
 	counter := make([]int, 100)
 	for y := 0; y < 1000; y++ {
 		for i := 0; i < 1000; i++ {
@@ -101,6 +99,7 @@ func main() {
 		}
 	}
 
+	lis := 0
 	for hi, h := range counter {
 		found := false
 		for _, g := range inflist {
@@ -109,16 +108,10 @@ func main() {
 			}
 		}
 		if !found {
-			log.Println(hi, h)
+			if h > lis {
+				lis = h
+			}
 		}
 	}
-	log.Println(counter)
-	log.Println(shortestId(coords, 5, 1))
-	for i := 0; i < 10; i++ {
-		for j := 0; j < 10; j++ {
-			fmt.Print(system[i][j], " ")
-		}
-		fmt.Println("")
-	}
-
+	log.Println("Answer is:", lis)
 }

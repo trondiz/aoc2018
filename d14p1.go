@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"strconv"
+	"time"
 )
 
 func check(e error) {
@@ -17,6 +18,7 @@ func MyAtoi(v string) int {
 }
 
 func main() {
+	t_input := time.Now()
 	input := 704321 + 10
 	scoreboard := []int{3, 7}
 	e1pos := 0
@@ -34,5 +36,7 @@ func main() {
 		e1pos = (e1pos + 1 + scoreboard[e1pos]) % len(scoreboard)
 		e2pos = (e2pos + 1 + scoreboard[e2pos]) % len(scoreboard)
 	}
+	input_t_elapsed := time.Since(t_input)
+	log.Println(input_t_elapsed)
 	log.Println(scoreboard[len(scoreboard)-10:])
 }
